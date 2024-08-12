@@ -1,0 +1,47 @@
+library(tidyverse)
+library(readxl)
+library(ggpubr)
+
+
+##................Membaca Data.....................##
+contohral1<-read_xlsx('datalatihan.xlsx', sheetName = 'RAL Polinomial')
+contohral2<-read_excel('datalatihan.xlsx', sheet = 'RAL Polinomial')
+contohral2
+head(contohral2)
+
+contohral2%>%
+  filter(dosis==0.5)%>%
+  select(produksi, tt)%>%
+  mutate(perkalian=tt*produksi,
+         akar=perkalian^0.5)
+         
+contohral2%>%
+  ggplot(aes(x=dosis, y=produksi))+
+  geom_point()+
+  geom_smooth(method = 'lm', formula = y~I(x)+I(x^2), se=F, color='steelblue')+
+  stat_regline_equation(formula = y~I(x)+I(x^2), aes(label=..eq.label..), label.y =37)+
+  labs(x='Dosis (Kg)', y= 'Produksi (Ton)')+
+  theme_bw()
+
+contohral2%>%
+  group_by(dosis)%>%
+  summarise(rataan=mean(produksi),
+            deviasi=sd(produksi),
+            seror=deviasi/(3^0.5))%>%
+  ggplot(aes(x=dosis, y=rataan))+
+  geom_bar(stat='identity')+
+  geom_bar(stat='identity', fill='white', color='black', width=0.25)+
+  geom_errorbar(aes(ymax=rataan+seror, ymin=rataan-seror), width=0.3)+
+  geom_text(aes(label=round(rataan,2), y=rataan+deviasi),vjust=-1)+
+  scale_y_continuous(limits =c(0,45))+
+  theme_bw()
+  
+  
+  
+
+  
+
+
+
+
+  
